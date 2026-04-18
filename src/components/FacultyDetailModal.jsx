@@ -1,8 +1,12 @@
-console.log("Full Faculty Data:", faculty);
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Mail, Phone, BookOpen, Briefcase, GraduationCap, MapPin, Calendar } from 'lucide-react'
+import { Mail, Phone, BookOpen, Briefcase, GraduationCap, Calendar } from 'lucide-react'
 
 export default function FacultyDetailModal({ faculty, open, onClose }) {
+  // Move the log here so it has access to the 'faculty' variable!
+  if (faculty) {
+    console.log("Full Faculty Data for Modal:", faculty);
+  }
+
   if (!faculty) return null;
 
   return (
@@ -17,8 +21,9 @@ export default function FacultyDetailModal({ faculty, open, onClose }) {
             <img 
               src={faculty.profile_photo_url || `https://ui-avatars.com/api/?name=${faculty.name}&size=200`} 
               className="w-32 h-32 rounded-2xl border-4 border-white shadow-lg object-cover bg-white"
+              alt={faculty.name}
             />
-            <div className="mt-14 flex-1">
+            <div className="mt-14 flex-1 text-left">
               <h2 className="text-3xl font-bold text-slate-900">{faculty.name}</h2>
               <p className="text-blue-600 font-semibold text-lg">{faculty.designation}</p>
               <p className="text-slate-500 flex items-center gap-1.5 mt-1">
@@ -29,12 +34,12 @@ export default function FacultyDetailModal({ faculty, open, onClose }) {
 
           {/* Bio Section */}
           {faculty.bio && (
-            <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 italic text-slate-600">
+            <div className="mt-8 p-4 bg-slate-50 rounded-xl border border-slate-100 italic text-slate-600 text-left">
               "{faculty.bio}"
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 text-left">
             {/* Left Column: Contact & Quick Info */}
             <div className="space-y-6">
               <section>
@@ -72,7 +77,7 @@ export default function FacultyDetailModal({ faculty, open, onClose }) {
                       <div className="text-xs text-slate-500 mt-2 flex justify-between items-center">
                         <span>{paper.venue_type} • {paper.publisher} • {paper.year}</span>
                         {paper.pdf_url && (
-                          <a href={paper.pdf_url} target="_blank" className="text-blue-600 font-bold hover:underline">View PDF</a>
+                          <a href={paper.pdf_url} target="_blank" rel="noreferrer" className="text-blue-600 font-bold hover:underline">View PDF</a>
                         )}
                       </div>
                     </div>
