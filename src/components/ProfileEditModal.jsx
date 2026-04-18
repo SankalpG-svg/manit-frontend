@@ -1,7 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 // ── 1. Import your custom api instance ──
 import api from '../lib/api' 
-import axios from 'axios' // Keep raw axios only for direct uploads if needed, but api is better
 
 import {
   Dialog,
@@ -27,7 +26,7 @@ function strToArr(str) {
   return str.split(',').map(s => s.trim()).filter(Boolean)
 }
 
-// ── Sub-components ─────────────────────────────────────────────
+// ── Sub-components (Unchanged) ──────────────────────────────────
 function FieldGroup({ label, hint, children }) {
   return (
     <div className="space-y-1.5">
@@ -42,8 +41,7 @@ function FieldGroup({ label, hint, children }) {
 
 function SectionHeading({ children }) {
   return (
-    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest
-                   pt-2 pb-1 border-b border-dashed border-slate-200">
+    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest pt-2 pb-1 border-b border-dashed border-slate-200">
       {children}
     </h4>
   )
@@ -54,9 +52,7 @@ function PhotoUploader({ previewUrl, onFileChange }) {
   return (
     <div className="flex items-center gap-5">
       <div
-        className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-200
-                   bg-slate-100 flex items-center justify-center shrink-0 cursor-pointer
-                   hover:border-slate-400 transition-colors"
+        className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-100 flex items-center justify-center shrink-0 cursor-pointer hover:border-slate-400 transition-colors"
         onClick={() => ref.current?.click()}
       >
         {previewUrl
@@ -64,27 +60,12 @@ function PhotoUploader({ previewUrl, onFileChange }) {
           : <User size={28} className="text-slate-300" />
         }
       </div>
-
       <div className="flex-1">
-        <input
-          ref={ref}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={e => onFileChange(e.target.files[0] ?? null)}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => ref.current?.click()}
-          className="gap-2 text-xs h-8"
-        >
+        <input ref={ref} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e => onFileChange(e.target.files[0] ?? null)} />
+        <Button type="button" variant="outline" size="sm" onClick={() => ref.current?.click()} className="gap-2 text-xs h-8">
           <Upload size={13} /> Choose photo
         </Button>
-        <p className="text-xs text-slate-400 mt-1.5">
-          JPEG / PNG / WEBP · max 5 MB
-        </p>
+        <p className="text-xs text-slate-400 mt-1.5">JPEG / PNG / WEBP · max 5 MB</p>
       </div>
     </div>
   )
@@ -94,38 +75,18 @@ function PaperRow({ paper, idx, onChange, onRemove }) {
   function set(field, val) { onChange(idx, { ...paper, [field]: val }) }
   return (
     <div className="relative rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-3 text-left">
-      <button
-        type="button"
-        onClick={() => onRemove(idx)}
-        className="absolute top-3 right-3 text-slate-300 hover:text-red-400
-                   transition-colors"
-      >
+      <button type="button" onClick={() => onRemove(idx)} className="absolute top-3 right-3 text-slate-300 hover:text-red-400 transition-colors">
         <Trash2 size={14} />
       </button>
-
       <div className="grid grid-cols-2 gap-3">
-        <FieldGroup label="Title">
-          <Input placeholder="Paper title" value={paper.title} onChange={e => set('title', e.target.value)} className="h-8 text-sm" />
-        </FieldGroup>
-        <FieldGroup label="Venue type">
-          <Input placeholder="e.g. Conference / Journal" value={paper.venue_type} onChange={e => set('venue_type', e.target.value)} className="h-8 text-sm" />
-        </FieldGroup>
-        <FieldGroup label="Publisher">
-          <Input placeholder="Publisher / Conference name" value={paper.publisher} onChange={e => set('publisher', e.target.value)} className="h-8 text-sm" />
-        </FieldGroup>
-        <FieldGroup label="Year">
-          <Input type="number" placeholder="2024" min="1950" value={paper.year} onChange={e => set('year', parseInt(e.target.value) || '')} className="h-8 text-sm" />
-        </FieldGroup>
-        
+        <FieldGroup label="Title"><Input placeholder="Paper title" value={paper.title} onChange={e => set('title', e.target.value)} className="h-8 text-sm" /></FieldGroup>
+        <FieldGroup label="Venue type"><Input placeholder="e.g. Conference / Journal" value={paper.venue_type} onChange={e => set('venue_type', e.target.value)} className="h-8 text-sm" /></FieldGroup>
+        <FieldGroup label="Publisher"><Input placeholder="Publisher" value={paper.publisher} onChange={e => set('publisher', e.target.value)} className="h-8 text-sm" /></FieldGroup>
+        <FieldGroup label="Year"><Input type="number" placeholder="2024" value={paper.year} onChange={e => set('year', parseInt(e.target.value) || '')} className="h-8 text-sm" /></FieldGroup>
         <div className="col-span-2">
           <FieldGroup label="Upload PDF (Optional)">
             <div className="flex items-center gap-3">
-              <Input 
-                type="file" 
-                accept="application/pdf" 
-                onChange={e => set('pdf_file', e.target.files[0])} 
-                className="h-8 text-sm flex-1 bg-white" 
-              />
+              <Input type="file" accept="application/pdf" onChange={e => set('pdf_file', e.target.files[0])} className="h-8 text-sm flex-1 bg-white" />
               {paper.pdf_url && !paper.pdf_file && (
                 <a href={paper.pdf_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
                   <FileText size={14} /> Current PDF
@@ -143,28 +104,14 @@ function ExperienceRow({ exp, idx, onChange, onRemove }) {
   function set(field, val) { onChange(idx, { ...exp, [field]: val }) }
   return (
     <div className="relative rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-3 text-left">
-      <button
-        type="button"
-        onClick={() => onRemove(idx)}
-        className="absolute top-3 right-3 text-slate-300 hover:text-red-400
-                   transition-colors"
-      >
+      <button type="button" onClick={() => onRemove(idx)} className="absolute top-3 right-3 text-slate-300 hover:text-red-400 transition-colors">
         <Trash2 size={14} />
       </button>
-
       <div className="grid grid-cols-2 gap-3">
-        <FieldGroup label="Institution">
-          <Input placeholder="University / College" value={exp.institution} onChange={e => set('institution', e.target.value)} className="h-8 text-sm" />
-        </FieldGroup>
-        <FieldGroup label="Role">
-          <Input placeholder="e.g. Assistant Professor" value={exp.role} onChange={e => set('role', e.target.value)} className="h-8 text-sm" />
-        </FieldGroup>
-        <FieldGroup label="Start year">
-          <Input type="number" placeholder="2018" value={exp.start_year} onChange={e => set('start_year', parseInt(e.target.value) || '')} className="h-8 text-sm" />
-        </FieldGroup>
-        <FieldGroup label="End year">
-          <Input type="number" placeholder="Present" value={exp.end_year ?? ''} onChange={e => set('end_year', e.target.value ? parseInt(e.target.value) : null)} className="h-8 text-sm" />
-        </FieldGroup>
+        <FieldGroup label="Institution"><Input placeholder="University" value={exp.institution} onChange={e => set('institution', e.target.value)} className="h-8 text-sm" /></FieldGroup>
+        <FieldGroup label="Role"><Input placeholder="Role" value={exp.role} onChange={e => set('role', e.target.value)} className="h-8 text-sm" /></FieldGroup>
+        <FieldGroup label="Start year"><Input type="number" placeholder="2018" value={exp.start_year} onChange={e => set('start_year', parseInt(e.target.value) || '')} className="h-8 text-sm" /></FieldGroup>
+        <FieldGroup label="End year"><Input type="number" placeholder="Present" value={exp.end_year ?? ''} onChange={e => set('end_year', e.target.value ? parseInt(e.target.value) : null)} className="h-8 text-sm" /></FieldGroup>
       </div>
     </div>
   )
@@ -174,40 +121,53 @@ function Toast({ type, message }) {
   if (!message) return null
   const isOk = type === 'success'
   return (
-    <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm
-                     border ${isOk
-                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                       : 'bg-red-50    border-red-200    text-red-800'}`}>
-      {isOk
-        ? <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
-        : <AlertCircle  size={15} className="text-red-500    shrink-0" />
-      }
+    <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm border ${isOk ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+      {isOk ? <CheckCircle2 size={15} className="text-emerald-500 shrink-0" /> : <AlertCircle size={15} className="text-red-500 shrink-0" />}
       {message}
     </div>
   )
 }
 
-const blankPaper = ()  => ({ title: '', venue_type: '', publisher: '', year: new Date().getFullYear(), pdf_url: null, pdf_file: null })
-const blankExp   = ()  => ({ institution: '', role: '', start_year: '', end_year: null })
+const blankPaper = () => ({ title: '', venue_type: '', publisher: '', year: new Date().getFullYear(), pdf_url: null, pdf_file: null })
+const blankExp = () => ({ institution: '', role: '', start_year: '', end_year: null })
 
+// ══════════════════════════════════════════════════════════════
+// Main Component
+// ══════════════════════════════════════════════════════════════
 export default function ProfileEditModal({ open, onClose, initialData = {} }) {
   const [file, setFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(initialData.profile_photo_url ?? null)
-  const [qualification, setQualification] = useState(initialData.qualification ?? '')
-  const [researchArea, setResearchArea] = useState(initialData.research_area ?? '')
-  const [phone, setPhone] = useState(initialData.phone ?? '')
-  const [bio, setBio] = useState(initialData.bio ?? '')
-  const [dob, setDob] = useState(initialData.dob ?? '')
-
-  const [subjectsStr, setSubjectsStr] = useState(arrToStr(initialData.subjects_current_sem))
-  const [eventsStr, setEventsStr] = useState(arrToStr(initialData.events_organized))
-  const [visitsStr, setVisitsStr] = useState(arrToStr(initialData.foreign_visits))
-
-  const [papers, setPapers] = useState(initialData.research_papers ?? [])
-  const [experiences, setExperiences] = useState(initialData.previous_experience ?? [])
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [qualification, setQualification] = useState('')
+  const [researchArea, setResearchArea] = useState('')
+  const [phone, setPhone] = useState('')
+  const [bio, setBio] = useState('')
+  const [dob, setDob] = useState('')
+  const [subjectsStr, setSubjectsStr] = useState('')
+  const [eventsStr, setEventsStr] = useState('')
+  const [visitsStr, setVisitsStr] = useState('')
+  const [papers, setPapers] = useState([])
+  const [experiences, setExperiences] = useState([])
 
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState({ type: '', message: '' })
+
+  // ── Sync internal state with initialData when modal opens ──
+  useEffect(() => {
+    if (open && initialData) {
+      setPreviewUrl(initialData.profile_photo_url || null)
+      setQualification(initialData.qualification || '')
+      setResearchArea(initialData.research_area || '')
+      setPhone(initialData.phone || '')
+      setBio(initialData.bio || '')
+      setDob(initialData.dob || '')
+      setSubjectsStr(arrToStr(initialData.subjects_current_sem))
+      setEventsStr(arrToStr(initialData.events_organized))
+      setVisitsStr(arrToStr(initialData.foreign_visits))
+      // Backend uses 'publications' and 'experience' keys
+      setPapers(initialData.publications || [])
+      setExperiences(initialData.experience || [])
+    }
+  }, [open, initialData])
 
   function showToast(type, message) {
     setToast({ type, message })
@@ -232,41 +192,37 @@ export default function ProfileEditModal({ open, onClose, initialData = {} }) {
     setToast({ type: '', message: '' })
 
     try {
-      // ── Step 1: Upload Profile Photo ─────
       let finalPhotoUrl = previewUrl
       if (file) {
         const formData = new FormData()
         formData.append('file', file)
-        // Using 'api' instance handles the baseURL and auth automatically
         const uploadRes = await api.post('/api/upload/upload-profile-image?upload_type=profile_photo', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
         finalPhotoUrl = uploadRes.data.file_url
       }
 
-      // ── Step 2: Upload Paper PDFs ────────
-      const processedPapers = [];
+      const processedPapers = []
       for (const p of papers) {
-        if (!p.title?.trim()) continue;
-        let finalPdfUrl = p.pdf_url;
+        if (!p.title?.trim()) continue
+        let finalPdfUrl = p.pdf_url
         if (p.pdf_file) {
-          const pdfData = new FormData();
-          pdfData.append('file', p.pdf_file);
+          const pdfData = new FormData()
+          pdfData.append('file', p.pdf_file)
           const pdfRes = await api.post('/api/upload/upload-profile-image?upload_type=research_paper', pdfData, {
             headers: { 'Content-Type': 'multipart/form-data' }
-          });
-          finalPdfUrl = pdfRes.data.file_url;
+          })
+          finalPdfUrl = pdfRes.data.file_url
         }
         processedPapers.push({
           title: p.title,
-          venue_type: p.venue_type,
-          publisher: p.publisher,
-          year: p.year,
+          venue_type: p.venue_type || "",
+          publisher: p.publisher || "",
+          year: p.year || new Date().getFullYear(),
           pdf_url: finalPdfUrl || undefined
-        });
+        })
       }
 
-      // ── Step 3: Patch Final Data ─────────
       const payload = {
         qualification: qualification || undefined,
         research_area: researchArea || undefined,
@@ -277,19 +233,22 @@ export default function ProfileEditModal({ open, onClose, initialData = {} }) {
         subjects_current_sem: strToArr(subjectsStr),
         events_organized: strToArr(eventsStr),
         foreign_visits: strToArr(visitsStr),
-        research_papers: processedPapers,
-        previous_experience: experiences.filter(e => e.institution?.trim()),
+        // ── MATCH BACKEND KEYS ──
+        publications: processedPapers,
+        experience: experiences.filter(e => e.institution?.trim()),
       }
 
       await api.patch('/api/faculty/me', payload)
 
       showToast('success', 'Profile updated successfully!')
-      setTimeout(() => onClose?.(), 1200)
+      setTimeout(() => {
+        onClose?.()
+        window.location.reload()
+      }, 1200)
 
     } catch (err) {
       console.error("Update error:", err)
-      const msg = err.response?.data?.detail || err.message || 'Update failed'
-      showToast('error', typeof msg === 'string' ? msg : "Check network or fields")
+      showToast('error', "Update failed. Check fields or network.")
     } finally {
       setSaving(false)
     }

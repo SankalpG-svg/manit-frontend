@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Mail, Phone, BookOpen, Briefcase, GraduationCap, Calendar } from 'lucide-react'
 
 export default function FacultyDetailModal({ faculty, open, onClose }) {
-  // Move the log here so it has access to the 'faculty' variable!
   if (faculty) {
     console.log("Full Faculty Data for Modal:", faculty);
   }
@@ -65,13 +64,13 @@ export default function FacultyDetailModal({ faculty, open, onClose }) {
 
             {/* Right Column: Experience & Research */}
             <div className="md:col-span-2 space-y-8">
-              {/* Research Papers */}
+              {/* Research Papers - UPDATED TO USE 'publications' */}
               <section>
                 <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <BookOpen className="text-blue-600" size={20} /> Research Publications
                 </h4>
                 <div className="space-y-4">
-                  {faculty.research_papers?.length > 0 ? faculty.research_papers.map((paper, i) => (
+                  {faculty.publications?.length > 0 ? faculty.publications.map((paper, i) => (
                     <div key={i} className="p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
                       <h5 className="font-semibold text-slate-800 leading-tight">{paper.title}</h5>
                       <div className="text-xs text-slate-500 mt-2 flex justify-between items-center">
@@ -85,13 +84,13 @@ export default function FacultyDetailModal({ faculty, open, onClose }) {
                 </div>
               </section>
 
-              {/* Work Experience */}
+              {/* Work Experience - UPDATED TO USE 'experience' */}
               <section>
                 <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
                   <Briefcase className="text-blue-600" size={20} /> Academic Experience
                 </h4>
                 <div className="relative border-l-2 border-slate-100 ml-3 pl-6 space-y-6">
-                  {faculty.previous_experience?.length > 0 ? faculty.previous_experience.map((exp, i) => (
+                  {faculty.experience?.length > 0 ? faculty.experience.map((exp, i) => (
                     <div key={i} className="relative">
                       <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-white border-2 border-blue-600" />
                       <h5 className="font-semibold text-slate-800">{exp.role}</h5>
