@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+// ── 1. Import your custom api instance ──
+import api from '../lib/api'; 
 import { Mail, Lock, UserPlus } from 'lucide-react';
 
 export default function Login() {
@@ -22,7 +23,13 @@ export default function Login() {
     formData.append('password', password);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/auth/login', formData);
+      // ── 2. Use 'api.post' with the relative path ──
+      // Note: We pass the Content-Type header here to ensure FastAPI recognizes the form data
+      const response = await api.post('/api/auth/login', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
       
       // Save JWT token
       localStorage.setItem('token', response.data.access_token);
@@ -31,6 +38,7 @@ export default function Login() {
       navigate('/');
       
     } catch (err) {
+      console.error("Login Error:", err.response?.data);
       setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import axios from 'axios'
+// ── 1. Import your custom api instance ──
+import api from '../lib/api' 
 import { jwtDecode } from 'jwt-decode'
 import { Search, GraduationCap, Users, RefreshCw, LayoutDashboard } from 'lucide-react'
 
@@ -12,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import FacultyCard from '../components/FacultyCard'
 import ProfileEditModal from '../components/ProfileEditModal'
 import FacultyDetailModal from '../components/FacultyDetailModal'
-import { ModeToggle } from '../components/mode-toggle' // 👈 Import added here
+import { ModeToggle } from '../components/mode-toggle'
 
 function StatPill({ icon: Icon, label, value }) {
   return (
@@ -36,7 +37,6 @@ export default function HomePage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedFaculty, setSelectedFaculty] = useState(null)
 
-  // ── 2. ROLE CHECK LOGIC ──
   const token = localStorage.getItem('token');
   let userRole = null;
 
@@ -52,7 +52,8 @@ export default function HomePage() {
   const fetchFaculty = async () => {
     setLoading(true)
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/faculty/')
+      // ── 2. Use 'api.get' with a relative path ──
+      const response = await api.get('/api/faculty/')
       setFaculty(response.data)
     } catch (err) {
       console.error("Fetch Error:", err)
@@ -78,11 +79,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-left transition-colors duration-300">
-      {/* ── HEADER ── */}
       <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          
-          {/* Logo Section */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.location.reload()}>
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200 dark:shadow-none">
               <GraduationCap size={18} className="text-white" />
@@ -90,15 +88,11 @@ export default function HomePage() {
             <span className="font-bold text-slate-900 dark:text-white text-lg tracking-tight">FacultyPortal</span>
           </div>
           
-          {/* Action Buttons */}
           <div className="flex items-center gap-4">
-            
-            {/* 👈 The Theme Toggle is placed right here */}
             <ModeToggle />
 
             {token ? (
               <>
-                {/* 🔒 ADMIN ONLY BUTTON */}
                 {userRole === 'admin' && (
                   <Button 
                     variant="outline" 
@@ -176,7 +170,6 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* ── MODALS ── */}
         <ProfileEditModal 
           open={isEditModalOpen} 
           onClose={() => { setIsEditModalOpen(false); fetchFaculty(); }} 

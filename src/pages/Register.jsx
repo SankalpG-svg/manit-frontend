@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import axios from 'axios'
+// ── 1. Import your custom api instance instead of raw axios ──
+import api from '../lib/api' 
 import { GraduationCap, Mail, User, Building2, Briefcase, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,8 +18,6 @@ export default function Register() {
     e.preventDefault()
     setLoading(true)
     
-    // ── 1. Create a Clean Payload ──
-    // This ensures we ONLY send what the Pydantic model 'FacultyRegister' expects
     const payload = {
       name: formData.name.trim(),
       email: formData.email.trim(),
@@ -27,21 +26,19 @@ export default function Register() {
     }
 
     try {
-      // ── 2. The API Call ──
-      await axios.post('http://127.0.0.1:8000/api/faculty/register', payload)
+      // ── 2. Use 'api.post' with a relative path ──
+      // The 'api' instance handles the http://... part automatically
+      await api.post('/api/faculty/register', payload)
       
       alert("Registration submitted! Please wait for Admin approval.")
       window.location.href = '/'
     } catch (err) {
       console.error("Registration Details:", err.response?.data)
       
-      // ── 3. Smart Error Display ──
-      // If FastAPI returns a 422, it sends a 'detail' array explaining which field failed
       const errorData = err.response?.data?.detail
       let finalMsg = "Registration failed"
 
       if (Array.isArray(errorData)) {
-        // Example: "name: field required"
         finalMsg = `${errorData[0].loc[1]}: ${errorData[0].msg}`
       } else if (typeof errorData === 'string') {
         finalMsg = errorData

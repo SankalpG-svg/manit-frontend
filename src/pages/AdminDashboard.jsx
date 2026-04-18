@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+// ── 1. Import your custom api instance ──
+import api from '../lib/api' 
 import { Trash2, ShieldCheck, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,7 +12,6 @@ export default function AdminDashboard() {
   const [empId, setEmpId] = useState('')
   const [password, setPassword] = useState('')
 
-  // ── 🚀 UPDATED: Fetching from the secret admin endpoint ──
   const fetchAllFaculty = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -22,15 +22,11 @@ export default function AdminDashboard() {
 
     setLoading(true);
     try {
-      const res = await axios.get('http://127.0.0.1:8000/api/faculty/admin/all', {
-        headers: { 
-          Authorization: `Bearer ${token}` 
-        }
-      });
+      // ── 2. Simplified call: Header is now handled by the interceptor! ──
+      const res = await api.get('/api/faculty/admin/all');
       setFaculty(res.data);
     } catch (err) {
       console.error("Admin fetch failed:", err);
-      // 🕵️ If the backend says 403, it means the TOKEN is valid but the ROLE is wrong
       if (err.response?.status === 403 || err.response?.status === 401) {
         alert("Access Denied: Your account does not have Admin privileges.");
         window.location.href = '/';
@@ -41,17 +37,16 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    // Give the app a tiny heartbeat to ensure token is ready
     fetchAllFaculty();
   }, []);
+
   const handleApprove = async (mongoId) => {
     if (!empId || !password) return alert("Please provide Emp ID and Password")
     try {
-      await axios.post(`http://127.0.0.1:8000/api/faculty/${mongoId}/approve`, {
+      // ── 3. Clean path and automated token injection ──
+      await api.post(`/api/faculty/${mongoId}/approve`, {
         emp_id: empId,
         password: password
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
       alert("Faculty Approved Successfully!")
       setApprovingId(null)
@@ -66,9 +61,8 @@ export default function AdminDashboard() {
   const handleDelete = async (mongoId) => {
     if (!window.confirm("Are you sure? This will delete the faculty permanently.")) return;
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/faculty/${mongoId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      // ── 4. Final local IP removal ──
+      await api.delete(`/api/faculty/${mongoId}`);
       fetchAllFaculty();
     } catch (err) {
       alert("Delete failed. You must be logged in as admin.");
