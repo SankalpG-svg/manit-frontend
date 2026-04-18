@@ -1,3 +1,4 @@
+console.log("Full Faculty Data:", faculty);
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Mail, Phone, BookOpen, Briefcase, GraduationCap, MapPin, Calendar } from 'lucide-react'
 
