@@ -1,8 +1,11 @@
 // src/lib/api.js
 import axios from 'axios'
 
+// Vite uses import.meta.env to access environment variables.
+// It will use VITE_API_URL from Vercel in production, 
+// and fallback to your local server during development.
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000',
   headers: { 'Content-Type': 'application/json' },
 })
 
